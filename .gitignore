@@ -1,0 +1,22 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Fetched documents and embedding cache (see docs/spec.md)
+data/raw/
+data/cache/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Personal Claude Code settings
+.claude/settings.local.json
