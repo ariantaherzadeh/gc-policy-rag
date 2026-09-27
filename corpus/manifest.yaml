@@ -1,0 +1,16 @@
+# The fixed corpus. Commit this file, not the downloaded documents (data/raw/ is gitignored).
+# Fields: id, title, url, language (en/fr), published, status (current/superseded),
+# format (html/pdf), access_level (optional).
+#
+# One document for now (milestone 1). The full corpus, including an EN/FR pair and a
+# current/superseded pair, is added in a later PR.
+
+documents:
+  - id: dadm-en
+    title: Directive on Automated Decision-Making
+    url: https://www.tbs-sct.canada.ca/pol/doc-eng.aspx?id=32592
+    language: en
+    # TODO(owner): confirm. Clause 1.2.1 refers to June 24, 2025 as the date of the latest amendments.
+    published: "2025-06-24"
+    status: current
+    format: html
