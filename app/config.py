@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     rerank_model: str = "rerank-v4.0-pro"
     chat_model: str = "command-a-03-2025"
 
+    # Chunking strategy, by name (see CHUNKERS in app/chunk.py).
+    chunker: str = "block"
+
     # Retrieval funnel: vector search casts a wide net, rerank narrows it.
     retrieve_top_k: int = 50
     rerank_top_n: int = 8

@@ -46,6 +46,7 @@ class Chunk(BaseModel):
     doc_id: str  # matches `id` in corpus/manifest.yaml
     title: str  # document title, shown next to citations
     section: str | None = None  # e.g. "6.1.1"; evals match expected sources on this
+    headings: list[str] = []  # heading path, shown with citations
     language: Language
     status: Status
     access_level: str | None = None
