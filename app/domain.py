@@ -13,6 +13,32 @@ Language = Literal["en", "fr"]
 Status = Literal["current", "superseded"]
 
 
+class Document(BaseModel):
+    """One entry in corpus/manifest.yaml: a source document and its metadata."""
+
+    id: str
+    title: str
+    url: str
+    language: Language
+    published: str | None = None  # ISO date, e.g. "2025-06-24"
+    status: Status
+    format: Literal["html", "pdf"]
+    access_level: str | None = None
+
+
+class Block(BaseModel):
+    """One structural unit of a parsed document, in reading order.
+
+    Parsing produces blocks; chunking (a separate step) decides how to group
+    or split them into the chunks that get embedded.
+    """
+
+    kind: Literal["clause", "paragraph", "definition", "table_row", "list"]
+    section: str | None = None  # clause number ("6.1.1") or appendix ("Appendix C")
+    headings: list[str] = []  # heading path, e.g. ["6. Requirements", "6.3 Quality assurance", "Peer review"]
+    text: str
+
+
 class Chunk(BaseModel):
     """One retrievable passage, plus the metadata needed to filter and cite it."""
 
