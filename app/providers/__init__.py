@@ -3,7 +3,7 @@
 from app.config import get_settings
 from app.corpus import ROOT
 from app.providers.cache import CachedEmbedder
-from app.providers.cohere import CohereEmbedder, make_client
+from app.providers.cohere import CohereEmbedder, CohereGenerator, CohereReranker, make_client
 
 EMBED_CACHE_DIR = ROOT / "data" / "cache" / "embeddings"
 
@@ -12,3 +12,13 @@ def get_embedder() -> CachedEmbedder:
     settings = get_settings()
     inner = CohereEmbedder(make_client(settings), settings.embed_model, settings.embed_dimension)
     return CachedEmbedder(inner, EMBED_CACHE_DIR, settings.embed_model, settings.embed_dimension)
+
+
+def get_reranker() -> CohereReranker:
+    settings = get_settings()
+    return CohereReranker(make_client(settings), settings.rerank_model)
+
+
+def get_generator() -> CohereGenerator:
+    settings = get_settings()
+    return CohereGenerator(make_client(settings), settings.chat_model)
