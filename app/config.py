@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     embed_dimension: int = 1536
     rerank_model: str = "rerank-v4.0-pro"
     chat_model: str = "command-a-03-2025"
+    # Rewrites follow-up questions before retrieval. A small model (e.g. command-r7b-12-2024)
+    # would do in production; on the trial key every call costs the same.
+    rewrite_model: str = "command-a-03-2025"
 
     # Chunking strategy, by name (see CHUNKERS in app/chunk.py).
     chunker: str = "block"
@@ -39,6 +42,9 @@ class Settings(BaseSettings):
     # Off = pass the top `rerank_top_n` vector-search results straight to Chat.
     # This is the switch for the with/without-rerank ablation.
     rerank_enabled: bool = True
+    # TODO(owner): if the best rerank score is below this, abstain without calling Chat.
+    # None = off (always let Command decide). Pick a value from eval results, not by guessing.
+    min_rerank_score: float | None = None
 
 
 @lru_cache
