@@ -51,13 +51,13 @@ def chat_response(text, citations):
 def test_citations_are_normalized_one_per_source():
     response = chat_response(
         "Peer review is required.",
-        [NS(start=0, end=11, text="Peer review", sources=[NS(id="d:6.3.7:0"), NS(id="d:Appendix C:2")])],
+        [NS(start=0, end=11, text="Peer review", sources=[NS(id="d:6.3.7:0"), NS(id="d:Appendix-C:2")])],
     )
     answer = to_answer(response)
     assert answer.text == "Peer review is required."
     assert answer.citations == [
         Citation(chunk_id="d:6.3.7:0", start=0, end=11, text="Peer review"),
-        Citation(chunk_id="d:Appendix C:2", start=0, end=11, text="Peer review"),
+        Citation(chunk_id="d:Appendix-C:2", start=0, end=11, text="Peer review"),
     ]
 
 

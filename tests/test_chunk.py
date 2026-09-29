@@ -24,7 +24,7 @@ def test_block_chunker_makes_one_chunk_per_block_with_document_metadata():
 
 
 def test_chunk_ids_are_unique_and_count_repeated_sections():
-    assert chunk_ids(DOC, BLOCKS) == ["sample-en:6.3.7:0", "sample-en:Appendix A:0", "sample-en:Appendix A:1"]
+    assert chunk_ids(DOC, BLOCKS) == ["sample-en:6.3.7:0", "sample-en:Appendix-A:0", "sample-en:Appendix-A:1"]
 
 
 def test_chunk_ids_are_stable_across_runs():
@@ -34,3 +34,8 @@ def test_chunk_ids_are_stable_across_runs():
 def test_unknown_chunker_name_is_a_clear_error():
     with pytest.raises(ValueError, match="Unknown chunker"):
         get_chunker("does-not-exist")
+
+
+def test_chunk_ids_contain_no_whitespace():
+    # Cohere's Chat API rejects document ids with whitespace ("Appendix A" sections).
+    assert not any(" " in chunk_id for chunk_id in chunk_ids(DOC, BLOCKS))
