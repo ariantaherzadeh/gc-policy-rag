@@ -54,14 +54,15 @@ class BlockChunker:
 def chunk_ids(doc: Document, blocks: list[Block]) -> list[str]:
     """Stable, readable ids: '<doc>:<section>:<n>', where n counts repeats of a section.
 
-    e.g. 'dadm-en:6.3.7:0', 'dadm-en:Appendix A:3'. The same input always produces the
+    e.g. 'dadm-en:6.3.7:0', 'dadm-en:Appendix-A:3'. The same input always produces the
     same ids, so re-ingesting updates rows instead of duplicating them, and eval runs
-    can refer to chunks by id.
+    can refer to chunks by id. No whitespace: Cohere's Chat API rejects document ids
+    containing it.
     """
     seen: Counter[str] = Counter()
     ids = []
     for block in blocks:
-        section = block.section or "none"
+        section = "-".join((block.section or "none").split())
         ids.append(f"{doc.id}:{section}:{seen[section]}")
         seen[section] += 1
     return ids

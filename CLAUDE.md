@@ -21,6 +21,9 @@ The agent writes the plumbing. The owner makes the judgment calls. Never finaliz
 - Trial key budget: 1,000 calls/month. Batch, cache, and avoid unnecessary calls.
 - **Never call the Cohere API without asking the owner first**, including tests and smoke checks.
   Say what will run and roughly how many calls it costs, then wait for a yes.
+- **Log every real API run in `docs/experiments.md`**: add a row to the table (date, what, calls,
+  running total) and an entry with the exact command, the raw output, and factual observations
+  only. Leave each entry's **My notes** blank; interpretation is the owner's.
 
 ## Workflow: learning-oriented PRs
 
