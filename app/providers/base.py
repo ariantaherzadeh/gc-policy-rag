@@ -33,6 +33,16 @@ class Reranker(Protocol):
 
 
 @runtime_checkable
+class Rewriter(Protocol):
+    def rewrite(self, question: str, history: list[Turn]) -> str:
+        """Turn a follow-up ("does that apply to Level I?") into a standalone search query.
+
+        Separate from Generator so it can use a smaller, cheaper model in production.
+        """
+        ...
+
+
+@runtime_checkable
 class Generator(Protocol):
     def answer(self, question: str, chunks: list[Chunk], history: list[Turn]) -> Answer:
         """Answer using only `chunks`, citing them; abstain if they don't contain the answer."""
