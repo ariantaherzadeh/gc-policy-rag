@@ -16,6 +16,9 @@ default `block` chunker, 83 chunks. Models: `embed-v4.0` (1536 dims), `rerank-v4
 | 5 | 2026-09-29 | First full answer: failed, chunk ids contained spaces | 2* | 5 |
 | 6 | 2026-09-29 | Full answer **with** rerank | 2 | 7 |
 | 7 | 2026-09-29 | Full answer **without** rerank | 1 | 8 |
+| 8 | 2026-09-29 | Conversation, turn 1 (same question as run 6) | 2 | 10 |
+| 9 | 2026-09-29 | Conversation, turn 2: follow-up with rewrite | 4 | 14 |
+| 10 | 2026-09-29 | Out-of-corpus question (abstention) | 3 | 17 |
 
 \* Rerank succeeded, then Chat rejected the request. Counted conservatively; the rejected call may not count.
 
@@ -210,5 +213,84 @@ API calls: embed 0, rerank 0, chat 1 = 1
 | Claims not supported by the context | None observed | None observed |
 
 Single question: an illustration, not a measurement. The eval harness measures this across many questions.
+
+**My notes:**
+
+---
+
+## 8–9. A two-turn conversation (follow-up rewriting)
+
+Interactive mode, two questions in one conversation.
+
+```
+$ uv run python -m app.chat --show-context
+> What must a department do before an automated decision system goes into production?
+```
+
+Turn 1's answer, citations and passages were the same as run 6 (same 7 requirements, same 8 passages
+in the same order; rerank scores within 0.001). `API calls so far: rewrite 0, embed 0, rerank 1, chat 1 = 2`
+
+```
+> Does peer review apply to Level I systems?
+(searched for: Does peer review apply to Level I automated decision systems in the context of Canadian government policy requirements?)
+
+No[1], peer review does not apply to Level I systems. According to the Directive on Automated Decision-Making[1], the requirement for peer review is as follows:
+
+Level I: None[1]
+
+This means that for Level I systems, there is no requirement for peer review. Peer review is only required for Level II, Level III, and Level IV systems, with increasing levels of expertise and publication requirements as the impact level increases.
+
+[1] Directive on Automated Decision-Making, section Appendix C  (dadm-en:Appendix-C:2)
+
+Passages (rerank score):
+  0.960  dadm-en:Appendix-C:2       Requirement: Peer review (section 6.3.7) Level I: None Level
+  0.823  dadm-en:Appendix-C:1       Requirement: Explanation (section 6.2.3) Level I: In additio
+  0.785  dadm-en:Appendix-C:5       Requirement: Ensuring human involvement (section 6.3.13) Lev
+  0.766  dadm-en:1.2:0              This directive applies to all automated decision systems dev
+  0.750  dadm-en:6.3.7:0            Consulting the appropriate qualified experts to review the a
+  0.743  dadm-en:7.1:0              Providing government-wide guidance on the use of automated d
+  0.732  dadm-en:4.1:0              The objective of this directive is to ensure that automated
+  0.725  dadm-en:5.2:0              This directive excludes automated decision systems used solely
+
+API calls so far: rewrite 1, embed 1, rerank 2, chat 2 = 6
+```
+
+Facts:
+- The rewrite added "automated decision systems" and "in the context of Canadian government policy requirements". The follow-up was already close to standalone (no "it"/"that"), so this run doesn't test pronoun resolution.
+- The answer matches the Appendix C "Peer review" row (Level I: None), which ranked first at 0.960; the next passage scored 0.823.
+- The citation `[1]` is attached to "No" and to the document name, not only to the "Level I: None" span.
+
+**My notes:**
+
+---
+
+## 10. Out-of-corpus question (abstention)
+
+The corpus has nothing on travel or meal rates.
+
+```
+$ uv run python -m app.chat "What is the per diem rate for meals when travelling to Yellowknife?" --show-context
+I'm sorry, I could not find the answer to your question in the policy documents.
+
+(abstained: answer cites no passages)
+
+Passages (rerank score):
+  0.405  dadm-en:1.1:0              This directive takes effect on April 1, 2019, with complianc
+  0.372  dadm-en:10.1:0             For interpretation of any aspect of this directive, contact
+  0.322  dadm-en:2.1:0              This directive is issued pursuant to the same authority indi
+  0.315  dadm-en:1.2.2:0            Agents of Parliament will have until June 24, 2026, to compl
+  0.315  dadm-en:8.2:0              Other departments or separate agencies that are not subject
+  0.296  dadm-en:1.2.1:0            Existing automated decision systems developed or procured pr
+  0.292  dadm-en:3.1:0              Definitions to be used in the interpretation of this directi
+  0.283  dadm-en:1.3:0              This directive will be reviewed every two years, and as dete
+
+API calls so far: rewrite 0, embed 1, rerank 1, chat 1 = 3
+```
+
+Facts:
+- Command abstained and cited nothing; `is_abstention` flagged it.
+- Best rerank score: **0.405**. For comparison, the top passage in runs 6, 8 and 9 scored 0.960–0.961.
+- `MIN_RERANK_SCORE` was off, so the Chat call was still made. A threshold between these values would have abstained without it.
+- Data points so far: 1 out-of-corpus question and 2 in-corpus questions. Not enough to choose a threshold.
 
 **My notes:**

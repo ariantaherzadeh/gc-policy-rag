@@ -36,3 +36,15 @@ class FakeGenerator:
             text=text,
             citations=[Citation(chunk_id=chunks[0].id, start=0, end=len(text), text=text)],
         )
+
+
+class FakeRewriter:
+    """Appends the last user turn's text, so tests can see the rewrite was used."""
+
+    def __init__(self):
+        self.calls = 0
+
+    def rewrite(self, question: str, history: list[Turn]) -> str:
+        self.calls += 1
+        last_user = next(t.content for t in reversed(history) if t.role == "user")
+        return f"{question} (about: {last_user})"

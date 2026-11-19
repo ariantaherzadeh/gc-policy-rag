@@ -7,7 +7,7 @@ from app.chat import answer_question, render
 from app.config import get_settings
 from app.domain import Answer, Chunk, Citation, Turn
 from app.providers.cohere import SYSTEM_PROMPT, CohereGenerator, CohereReranker, to_answer
-from tests.fakes import FakeGenerator, FakeReranker
+from tests.fakes import FakeGenerator, FakeReranker, FakeRewriter
 
 
 def chunk(id: str, text: str = "text") -> Chunk:
@@ -127,7 +127,8 @@ def test_pipeline_with_and_without_rerank(conn):
         def embed(self, texts, kind):
             return [[1.0, 0.0] + [0.0] * (dim - 2) for _ in texts]
 
-    common = dict(history=[], conn=conn, embedder=QueryEmbedder(), reranker=FakeReranker(), generator=FakeGenerator())
+    common = dict(history=[], conn=conn, embedder=QueryEmbedder(), reranker=FakeReranker(), generator=FakeGenerator(),
+                  rewriter=FakeRewriter())
 
     with_rerank = answer_question("peer review", rerank=True, **common)
     assert with_rerank.context[0].id == "d:1"  # FakeReranker promotes the chunk sharing query words

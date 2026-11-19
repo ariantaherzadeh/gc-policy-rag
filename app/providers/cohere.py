@@ -127,3 +127,31 @@ def to_answer(response) -> Answer:
         if getattr(source, "id", None) and c.start is not None and c.end is not None
     ]
     return Answer(text=text, citations=citations)
+
+
+REWRITE_PROMPT = """\
+Rewrite the user's latest question so it can be understood without the conversation,
+for use as a search query over Government of Canada policy documents. Resolve words
+like "it", "that" or "those" using the conversation. Keep the question's language.
+If it is already standalone, return it unchanged. Output only the rewritten question."""
+
+
+class CohereRewriter:
+    def __init__(self, client: cohere.ClientV2, model: str):
+        self.client = client
+        self.model = model
+        self.calls = 0
+
+    def rewrite(self, question: str, history: list[Turn]) -> str:
+        conversation = "\n".join(f"{turn.role}: {turn.content}" for turn in history)
+        response = self.client.chat(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": REWRITE_PROMPT},
+                {"role": "user", "content": f"Conversation:\n{conversation}\n\nLatest question: {question}"},
+            ],
+            temperature=0,
+        )
+        self.calls += 1
+        rewritten = to_answer(response).text.strip()
+        return rewritten or question  # never search with an empty query
